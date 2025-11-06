@@ -26,31 +26,15 @@ author = "agent"
 
 [[workflows.workflow.tasks]]
 task = "workflow.run"
-args = "markdown-preview"
-
-[[workflows.workflow.tasks]]
-task = "workflow.run"
-args = "main-app"
+args = "nextjs-app"
 
 [[workflows.workflow]]
-name = "markdown-preview"
-author = "agent"
-
-[workflows.workflow.metadata]
-outputType = "console"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "node markdown-preview/server.js"
-waitForPort = 3000
-
-[[workflows.workflow]]
-name = "main-app"
+name = "nextjs-app"
 author = "agent"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "node main-app/src/app.js"
+args = "npm run dev"
 waitForPort = 5000
 
 [workflows.workflow.metadata]

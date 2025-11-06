@@ -1,10 +1,12 @@
 {
-  "name": "nodejs",
+  "name": "nextjs-app",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "Next.js application with markdown preview",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dev": "next dev -p 5000 -H 0.0.0.0",
+    "build": "next build",
+    "start": "next start -p 5000 -H 0.0.0.0",
+    "lint": "next lint"
   },
   "keywords": [],
   "author": "",
