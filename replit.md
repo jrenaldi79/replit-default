@@ -1,9 +1,15 @@
 # Overview
 
-This project is a **Next.js 16** application running on port 5000. It includes:
+This project is a **Next.js 15** application with **TypeScript** and **Tailwind CSS**, using the **App Router** architecture and running on port 5000. It includes:
 
-1. **Home Page** - Welcome page with navigation
-2. **Markdown Preview** - Interactive markdown file viewer with live rendering
+1. **Home Page** - Welcome page with navigation using Tailwind CSS styling
+2. **Markdown Preview** - Interactive markdown file viewer with live rendering and XSS protection
+
+The project follows:
+- **Test-Driven Development (TDD)** methodology with Jest and React Testing Library
+- **TypeScript** for type safety
+- **Tailwind CSS** for styling
+- **Next.js 15 App Router** for modern React Server Components architecture
 
 The project also contains the **BMad Method framework** in the `web-bundles` directory, which is an AI-driven agile development methodology system with specialized agent personas for different development roles.
 
@@ -14,54 +20,78 @@ Preferred communication style: Simple, everyday language.
 # Project Structure
 
 ```
-├── pages/                 # Next.js pages directory
-│   ├── _app.js           # Custom App component
-│   ├── index.js          # Home page
-│   ├── markdown-preview.js  # Markdown viewer page
-│   └── api/              # API routes
-│       ├── files.js      # Lists markdown files
-│       └── markdown.js   # Renders markdown content
+├── app/                   # Next.js 15 App Router directory
+│   ├── layout.tsx        # Root layout with Tailwind CSS
+│   ├── page.tsx          # Home page component
+│   ├── globals.css       # Global Tailwind CSS imports
+│   ├── markdown-preview/ # Markdown preview route
+│   │   └── page.tsx      # Markdown viewer component (client-side)
+│   └── api/              # API Route Handlers
+│       ├── files/        
+│       │   └── route.ts  # GET endpoint for listing markdown files
+│       └── markdown/
+│           └── route.ts  # GET endpoint for rendering markdown
 │
-├── styles/               # CSS modules
-│   ├── Home.module.css
-│   └── MarkdownPreview.module.css
+├── tests/                # Test files (TDD approach)
+│   ├── unit/            # Unit tests
+│   └── integration/     # Integration tests
 │
-├── web-bundles/          # BMad Method Framework
-│   └── ...               # AI-driven development methodology
+├── types/               # Shared TypeScript type definitions
 │
-├── next.config.js        # Next.js configuration
-├── package.json          # Project dependencies
-└── README.md             # Project overview
+├── web-bundles/         # BMad Method Framework
+│   └── ...              # AI-driven development methodology
+│
+├── jest.config.js       # Jest testing configuration
+├── jest.setup.js        # Jest setup with Testing Library
+├── tsconfig.json        # TypeScript configuration
+├── tailwind.config.js   # Tailwind CSS configuration
+├── postcss.config.js    # PostCSS configuration for Tailwind
+├── next.config.js       # Next.js configuration
+├── package.json         # Project dependencies and scripts
+└── README.md            # Project overview
 ```
 
 # System Architecture
 
 
+**Architecture Pattern**: Next.js 15 with App Router (React Server Components)
+
+**Technology Stack**:
+- **Framework**: Next.js 15 with React 19 and App Router
+- **Language**: TypeScript with strict mode
+- **Styling**: Tailwind CSS v3.4.x with PostCSS
+- **Testing**: Jest with React Testing Library (TDD approach)
+- **Markdown Parsing**: `marked` library with DOMPurify sanitization
+- **Server**: Node.js with Route Handlers
+
 ## Pages
 
-**Home Page (`pages/index.js`)**:
-- Welcome page with gradient background
+**Home Page (`app/page.tsx`)**:
+- Server Component with Tailwind CSS gradient background
 - Navigation links to main app and markdown preview
-- Responsive design
+- Responsive design using Tailwind utility classes
 
-**Markdown Preview (`pages/markdown-preview.js`)**:
+**Markdown Preview (`app/markdown-preview/page.tsx`)**:
+- Client Component ('use client') for interactivity
 - Interactive sidebar showing all markdown files in project
-- Click-to-preview functionality
-- Renders markdown content with proper styling
-- Responsive layout
+- Click-to-preview functionality with state management
+- Sanitized markdown rendering with DOMPurify
+- Responsive layout using Tailwind CSS
 
-## API Routes
+## API Route Handlers
 
-**`/api/files` (GET)**:
+**`/app/api/files/route.ts` (GET)**:
+- TypeScript Route Handler using Next.js 15 conventions
 - Recursively scans project for markdown files
 - Excludes directories: `node_modules`, `.git`, `.cache`, `.config`, `.npm`, `.next`
-- Returns array of file paths
+- Returns relative paths instead of absolute paths for security
 
-**`/api/markdown` (GET)**:
-- Query parameter: `file` (path to markdown file)
+**`/app/api/markdown/route.ts` (GET)**:
+- TypeScript Route Handler with NextRequest/NextResponse
+- Query parameter: `file` (relative path to markdown file)
+- Server-side sanitization with DOMPurify
 - Security validation to prevent directory traversal
-- Returns JSON with `content`, `html`, and `file` properties
-- Uses `marked` library for markdown-to-HTML conversion
+- Returns JSON with `content`, sanitized `html`, and `file` properties
 
 ## Security Features
 
@@ -77,19 +107,52 @@ Preferred communication style: Simple, everyday language.
 
 ## Design Decisions
 
+**Framework & Architecture**:
+- **Next.js 15 App Router**: Modern React Server Components for better performance
+- **TypeScript**: Type safety and better developer experience
+- **Tailwind CSS v3.4**: Utility-first CSS for rapid UI development
+- **Test-Driven Development**: Jest and React Testing Library for quality assurance
+
 **Port Configuration**:
 - **Port 5000**: Required for Replit webview integration
 - **Host**: 0.0.0.0 to allow external access
+
+**Security Decisions**:
+- **Server-side HTML sanitization**: DOMPurify prevents XSS attacks
+- **Relative path returns**: API doesn't expose filesystem structure
+- **Path validation**: Prevents directory traversal attacks
 
 # External Dependencies
 
 ## NPM Packages
 
-- **next** (v16.0.1) - React framework with SSR and routing
+### Core Framework
+- **next** (v15.x) - React framework with App Router and Server Components
 - **react** (v19.2.0) - UI library
 - **react-dom** (v19.2.0) - React DOM renderer
+- **typescript** (v5.x) - TypeScript language support
+
+### Styling
+- **tailwindcss** (v3.4.x) - Utility-first CSS framework
+- **autoprefixer** - PostCSS plugin for vendor prefixes
+- **postcss** - CSS transformations
+
+### Testing (TDD)
+- **jest** - JavaScript testing framework
+- **@testing-library/react** - React component testing utilities
+- **@testing-library/jest-dom** - Jest DOM matchers
+- **@testing-library/user-event** - User interaction simulation
+- **jest-environment-jsdom** - DOM environment for Jest
+
+### Security & Utilities
 - **marked** (v16.4.1) - Markdown parsing library
-- **@types/node** (v22.13.11) - TypeScript type definitions for Node.js APIs
+- **isomorphic-dompurify** - XSS sanitization for HTML content
+
+### Type Definitions
+- **@types/node** - Node.js type definitions
+- **@types/react** - React type definitions
+- **@types/react-dom** - React DOM type definitions
+- **@types/jest** - Jest type definitions
 
 ## Runtime Environment
 
@@ -113,29 +176,45 @@ One Replit workflow configured:
 **Main App**: 
 - Automatically visible in Replit webview
 - Navigate between pages using the links on the home page
+- All pages use React Server Components by default (except client components marked with 'use client')
 
-## Adding Features
+## Adding Features (Following TDD)
+
+**Test-First Development**:
+1. Write tests in `tests/` directory BEFORE implementation
+2. Run `npm test` to see tests fail (RED phase)
+3. Implement feature to make tests pass (GREEN phase)
+4. Refactor code while keeping tests passing
 
 **New Pages**:
-- Create files in `pages/` directory
-- File-based routing: `pages/about.js` → `/about`
+- Create TypeScript files in `app/` directory
+- File-based routing: `app/about/page.tsx` → `/about`
+- Use Server Components by default, add 'use client' only when needed
 
-**New API Routes**:
-- Create files in `pages/api/` directory
-- Example: `pages/api/users.js` → `/api/users`
+**New API Route Handlers**:
+- Create TypeScript files in `app/api/` directory
+- Example: `app/api/users/route.ts` → `/api/users`
+- Use NextRequest and NextResponse for type safety
 
-**Styling**:
-- Add CSS modules in `styles/` directory
-- Import in components: `import styles from '../styles/ComponentName.module.css'`
+**Styling with Tailwind CSS**:
+- Use Tailwind utility classes directly in components
+- Customize in `tailwind.config.js` for project-specific needs
+- Global styles in `app/globals.css`
+
+## Testing Commands
+
+- `npm test` - Run all tests
+- `npm run test:watch` - Run tests in watch mode
+- `npm run test:coverage` - Run tests with coverage report (target: >90%)
 
 ## Recent Changes (November 6, 2025)
 
-**Migration to Next.js**:
-- Converted from Express-based multi-app structure to Next.js
-- Combined main app and markdown preview into single Next.js application
-- Implemented Pages Router with API routes
-- Maintained all existing functionality (home page + markdown preview)
-- Improved development experience with hot reload and integrated routing
+**Full Architecture Migration**:
+- Migrated from JavaScript/Next.js 16 Pages Router to TypeScript/Next.js 15 App Router
+- Implemented Tailwind CSS v3.4 replacing CSS Modules
+- Set up comprehensive testing infrastructure with Jest and React Testing Library
+- Added security enhancements (DOMPurify, relative paths)
+- Aligned entire project with Project Rules for TDD, TypeScript, and modern React patterns
 
 
 # Project Rules
