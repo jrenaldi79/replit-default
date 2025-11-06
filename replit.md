@@ -115,7 +115,7 @@ Preferred communication style: Simple, everyday language.
 ## Runtime Environment
 
 - **Node.js** - JavaScript runtime (version not strictly specified, but uses modern ES features)
-- **Replit Platform** - Designed for deployment on Replit with preview on port 5000
+- **Replit Platform** - Markdown preview server runs on port 3000 (port 5000 reserved for main app)
 
 ## BMad Method Framework
 
