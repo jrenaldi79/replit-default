@@ -154,8 +154,8 @@ export default function MarkdownPreviewPage() {
               className="prose prose-lg max-w-none
                 prose-h1:border-b-2 prose-h1:border-gray-200 prose-h1:pb-2
                 prose-h2:mt-8 prose-h2:mb-4
-                prose-code:bg-gray-100 prose-code:px-2 prose-code:py-1 prose-code:rounded
-                prose-pre:bg-gray-100 prose-pre:p-4
+                prose-code:bg-purple-50 prose-code:text-purple-900 prose-code:px-2 prose-code:py-1 prose-code:rounded prose-code:font-semibold
+                prose-pre:bg-gray-900 prose-pre:text-gray-100 prose-pre:p-4 prose-pre:rounded-lg
                 prose-blockquote:border-l-4 prose-blockquote:border-purple-600 prose-blockquote:pl-4
                 prose-a:text-purple-600 prose-a:no-underline hover:prose-a:underline"
               dangerouslySetInnerHTML={{ __html: html }}
