@@ -2,10 +2,10 @@
 
 ## Overview
 
-This project is a Next.js 14 application built for the Replit platform. It utilizes TypeScript, Tailwind CSS, the App Router architecture, and the Turbopack bundler. Its primary purpose is to provide a platform for a welcome page and an interactive markdown previewer with live rendering and XSS protection.
+This project is a Next.js 16 application built for the Replit platform. It utilizes TypeScript, Tailwind CSS, the App Router architecture, and the Turbopack bundler. Its primary purpose is to provide a platform for a welcome page and an interactive markdown previewer with live rendering and XSS protection.
 
 ### 🔧 Technology Stack
-- **Framework**: **Next.js 14.x** with Turbopack (App Router)
+- **Framework**: **Next.js 16.x** with Turbopack (App Router)
 - **Language**: TypeScript 5.x with strict mode
 - **Styling**: Tailwind CSS 3.4.x with Typography plugin
 - **Testing**: Jest, React Testing Library
