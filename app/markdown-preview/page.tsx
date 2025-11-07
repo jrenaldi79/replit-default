@@ -133,7 +133,7 @@ export default function MarkdownPreviewPage() {
           {selectedFile && !loading && html && (
             <div
               ref={contentRef}
-              className="prose prose-lg max-w-none
+              className="prose max-w-none
                 prose-h1:text-gray-900 prose-h1:border-b prose-h1:border-gray-200 prose-h1:pb-3 prose-h1:mb-6
                 prose-h2:text-gray-800 prose-h2:mt-12 prose-h2:mb-4 prose-h2:font-semibold
                 prose-h3:text-gray-700 prose-h3:mt-8 prose-h3:mb-3
