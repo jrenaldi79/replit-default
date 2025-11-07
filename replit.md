@@ -66,6 +66,100 @@ TDD may be relaxed ONLY for:
 
 ---
 
+## Project Structure
+
+This Next.js application follows a modern monorepo structure with all code organized in the `app` directory using the App Router pattern.
+
+```
+├── app/                          # Next.js App Router directory
+│   ├── api/                      # API Route Handlers
+│   │   ├── files/                # File discovery API
+│   │   │   └── route.ts         # GET endpoint for markdown file tree
+│   │   └── markdown/             # Markdown rendering API
+│   │       └── route.ts         # GET endpoint for markdown content
+│   ├── markdown-preview/         # Markdown preview feature
+│   │   ├── page.tsx             # Main preview page (Client Component)
+│   │   └── FileTree.tsx         # File tree navigation component
+│   ├── globals.css              # Global styles and Tailwind directives
+│   ├── layout.tsx               # Root layout component
+│   └── page.tsx                 # Home page (Server Component)
+│
+├── tests/                        # Test suite organized by test type
+│   ├── integration/              # Integration tests
+│   │   └── markdown-preview.test.tsx
+│   └── unit/                     # Unit tests
+│       └── app/
+│           ├── api/
+│           │   ├── files.test.ts
+│           │   └── markdown.test.ts
+│           └── page.test.tsx
+│
+├── types/                        # Shared TypeScript type definitions
+│   └── index.ts
+│
+├── web-bundles/                  # BMad Method framework resources
+│   ├── agents/                   # AI agent definitions
+│   ├── expansion-packs/          # Domain-specific extensions
+│   └── teams/                    # Team configuration templates
+│
+├── attached_assets/              # User-uploaded files and screenshots
+│
+├── jest.config.js               # Jest test configuration
+├── jest.setup.js                # Jest setup and global test utilities
+├── next.config.js               # Next.js configuration
+├── tailwind.config.js           # Tailwind CSS configuration
+├── tsconfig.json                # TypeScript configuration
+└── package.json                 # Project dependencies and scripts
+```
+
+### Key Features
+
+#### 1. Main Application (Port 5000)
+- **Home Page**: Welcome screen with gradient background and navigation links
+- **Purpose**: Entry point to the application with links to all features
+- **Type**: React Server Component for optimal performance
+
+#### 2. Markdown Preview System
+- **Interactive File Browser**: Sidebar with expandable folder tree structure
+- **Live Rendering**: Real-time markdown to HTML conversion with sanitization
+- **Mermaid Diagrams**: Full support for Mermaid diagram rendering
+- **Security**: Path traversal protection and XSS prevention via DOMPurify
+- **Styling**: Replit-inspired markdown rendering with light code blocks and clean typography
+
+#### 3. API Endpoints
+
+**GET /api/files**
+- Recursively scans project for markdown files
+- Excludes sensitive directories (`node_modules`, `.git`, `.cache`, `.next`)
+- Returns hierarchical file tree structure
+- Sorts folders before files, alphabetically within each category
+
+**GET /api/markdown?file={path}**
+- Reads and renders specified markdown file
+- Converts markdown to HTML using `marked` library
+- Sanitizes HTML on server-side using `isomorphic-dompurify`
+- Validates file paths to prevent directory traversal attacks
+- Returns: `{ content, html, file }` JSON response
+
+### Security Features
+
+- **Path Traversal Protection**: Validates all file paths against project root
+- **XSS Prevention**: Server-side HTML sanitization using DOMPurify
+- **File Type Validation**: Only allows `.md` files
+- **CORS Configuration**: Properly configured for Replit environment
+
+### Styling Approach
+
+- **Tailwind CSS v3.4.x**: Utility-first CSS framework
+- **Typography Plugin**: `@tailwindcss/typography` for markdown prose styling
+- **Replit-Inspired Design**: 
+  - Light gray code blocks (`bg-gray-100`) with dark text
+  - Red inline code (`text-red-700`)
+  - Bold black headings for strong hierarchy
+  - Clean, minimal aesthetic matching Replit's markdown rendering
+
+---
+
 ## System Architecture
 
 The application is built on **Next.js 16** with the stable **Turbopack** bundler, leveraging the **App Router** for modern React Server Components. **TypeScript** ensures type safety, and **Tailwind CSS v3.4.x** is used for utility-first styling. **Jest** with **React Testing Library** facilitates our TDD approach. The server-side logic uses Node.js within Next.js Route Handlers.
@@ -74,12 +168,13 @@ The application is built on **Next.js 16** with the stable **Turbopack** bundler
 
 ### UI/UX Decisions:
 -   **Home Page**: A Server Component with a Tailwind CSS gradient background and responsive design, providing navigation links.
--   **Markdown Preview**: A Client Component featuring an interactive sidebar for markdown file selection and a sanitized markdown renderer.
+-   **Markdown Preview**: A Client Component featuring an interactive sidebar for markdown file selection and a sanitized markdown renderer with Replit-style typography.
 -   **Responsive Design**: Achieved through Tailwind CSS utility classes.
 
 ### Technical Implementations:
--   **File System API**: A Route Handler (`/api/files`) recursively scans for markdown files, excluding sensitive directories, and returns relative paths.
+-   **File System API**: A Route Handler (`/api/files`) recursively scans for markdown files, excluding sensitive directories, and returns a structured tree of relative paths sorted by folder/file type and name.
 -   **Markdown Rendering API**: A Route Handler (`/api/markdown`) fetches and renders markdown content, applying server-side sanitization and validating file paths to prevent directory traversal.
+-   **Mermaid Integration**: Client-side Mermaid initialization and rendering of diagram code blocks within markdown content.
 
 ---
 
@@ -89,6 +184,7 @@ The application is built on **Next.js 16** with the stable **Turbopack** bundler
 -   **Core Framework**: `next` (v16.x), `react` (v19.2.0), `react-dom` (v19.2.0), `typescript` (v5.x)
 -   **Styling**: `tailwindcss` (v3.4.x), `autoprefixer`, `postcss`
 -   **Testing**: `jest`, `@testing-library/react`, `@testing-library/jest-dom`, `@testing-library/user-event`, `jest-environment-jsdom`
+-   **Logging**: `winston`
 -   **Security & Utilities**: `marked` (v16.4.1), `isomorphic-dompurify`
 -   **Type Definitions**: `@types/node`, `@types/react`, `@types/react-dom`, `@types/jest`
 
@@ -172,15 +268,43 @@ The application is built on **Next.js 16** with the stable **Turbopack** bundler
 -   Use traditional PostCSS configuration and `@tailwind` directives.
 -   If styles aren't loading, restart the dev server completely.
 
-## API Design & Monitoring
--   **API Design**:
-    -   Use consistent HTTP methods in Route Handlers (GET, POST, PUT/PATCH, DELETE).
-    -   Implement standardized pagination, filtering, and sorting.
-    -   Use consistent response formats and proper status codes.
--   **Monitoring**:
-    -   Implement structured logging with consistent levels (error, warn, info, debug).
-    -   Log all API requests and responses with timing.
-    -   Implement health check endpoints.
+## API Design
+-   Use consistent HTTP methods in Route Handlers (GET, POST, PUT/PATCH, DELETE).
+-   Implement standardized pagination, filtering, and sorting.
+-   Use consistent response formats and proper status codes.
+-   Implement health check endpoints for services.
+
+---
+
+## Structured Logging & Observability
+
+We use an enterprise-grade structured logging approach for production-ready observability. **NEVER use `console.log` in application code.**
+
+### Core Components
+1.  **Centralized Logger Utility**: All logging should go through a central Winston-based logger utility, located at `src/utils/logger.ts`.
+2.  **Correlation ID Tracking**: Every incoming request must be assigned a unique correlation ID (e.g., via middleware). This ID **must** be included in every log entry related to that request to enable end-to-end distributed tracing.
+3.  **Environment-Driven Configuration**: Logging behavior is controlled via environment variables, not code changes.
+
+### Environment Configuration
+```bash
+# .env.local
+LOG_LEVEL=info      # Winston log levels: error, warn, info, debug
+LOG_FORMAT=simple   # 'json' for production, 'simple' for development console output
+```
+
+### Logging Best Practices
+-   **NEVER use `console.log()`**. Always use the centralized `Logger` methods.
+-   **Always include the `correlationId`** in log calls when it's available from the request context.
+-   **Use appropriate log levels**:
+    -   `Logger.error()`: For application errors, unexpected failures, and exceptions. Must include error object and stack trace.
+    -   `Logger.warn()`: For recoverable issues or potential problems that don't crash the app (e.g., API retries, bad user input).
+    -   `Logger.info()`: For important lifecycle events (server start, API request/response, significant user actions).
+    -   `Logger.debug()`: For detailed, verbose information useful only during development.
+-   **Include Rich Metadata**: Pass a structured `meta` object to your log calls. This makes logs searchable and provides context (e.g., `{ userId: '123', file: 'example.md' }`).
+-   **Log API Requests**: Automatically log all API requests and their responses, including status code, timing, and correlation ID.
+-   **Consider Specialized Loggers**: For highly critical or complex domains (e.g., security events, file parsing), consider creating specialized methods in the logger utility to ensure consistent and detailed logging for that domain.
+
+---
 
 ## Database (Supabase)
 -   Use the Supabase SDK for all data fetching and querying.
