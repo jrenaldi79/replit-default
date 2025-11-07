@@ -206,7 +206,6 @@ This Next.js application follows a modern monorepo structure with all code organ
 ├── docs/                        # Documentation (create if needed)
 │   └── [topic].md              # Technical documentation
 │
-├── attached_assets/             # User uploads (DO NOT MODIFY)
 ├── web-bundles/                 # BMad framework (DO NOT MODIFY)
 │
 └── [CONFIG FILES]               # Root configuration files
@@ -264,10 +263,11 @@ This Next.js application follows a modern monorepo structure with all code organ
 - Don't create files outside the defined structure
 - Don't put components directly in `/app/` root
 - Don't create new root directories without updating this document
-- Don't modify `/web-bundles/` or `/attached_assets/`
+- Don't modify `/web-bundles/` (BMad framework files)
 - Don't skip tests - TDD is mandatory
 - Don't use `/pages/` directory (we use App Router, not Pages Router)
 - Don't create `.env` files (use Replit Secrets)
+- Don't commit `attached_assets/` to git (internal Replit directory)
 
 #### 🔍 Quick Reference
 

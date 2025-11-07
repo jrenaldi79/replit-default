@@ -131,3 +131,6 @@ dist
 
 # Replit debugger
 .breakpoints
+
+# Replit internal directories (agent uploads, screenshots)
+attached_assets/
