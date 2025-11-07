@@ -6,9 +6,90 @@ This project is a Next.js 16 application built for the Replit platform. It utili
 
 The project strictly adheres to a Test-Driven Development (TDD) methodology and incorporates the BMad Method framework for AI-driven agile development.
 
+### Current Implementation Status
+
+✅ **Completed Features:**
+- Main application shell with Next.js 16 App Router
+- Welcome page with gradient design and navigation
+- Markdown preview system with file browser
+- Syntax highlighting for code blocks (Replit-style theme)
+- Mermaid diagram support in markdown
+- API endpoints for file discovery and markdown rendering
+- Security features (XSS protection, path traversal prevention)
+- Comprehensive test suite with Jest and React Testing Library
+- Tailwind CSS styling with Typography plugin
+
+🔧 **Technology Stack:**
+- **Framework**: Next.js 16.0.1 with Turbopack
+- **Language**: TypeScript 5.x with strict mode
+- **Styling**: Tailwind CSS 3.4.x with Typography plugin
+- **Testing**: Jest, React Testing Library
+- **Markdown**: marked (rendering), isomorphic-dompurify (sanitization)
+- **Syntax Highlighting**: highlight.js with custom Replit theme
+- **Diagrams**: Mermaid 10.x
+- **Runtime**: Node.js on Replit platform
+- **Port**: 5000 (configured for Replit webview)
+
+📋 **Project Context for Agent:**
+When working on this project:
+1. This is a markdown preview application with real-time rendering
+2. Security is critical - all user input must be sanitized
+3. The app uses Replit-style UI conventions (light backgrounds, clean typography)
+4. TDD is mandatory - write tests before implementation
+5. All new features should integrate with the existing navigation
+6. The project uses the App Router (not Pages Router)
+7. Server Components are preferred over Client Components when possible
+
 ## User Preferences
 
 - **Preferred communication style**: Simple, everyday language.
+
+## Common Development Workflows
+
+### Adding a New Feature
+
+**Example: Adding a "Code Editor" feature**
+```bash
+# Step 1: Write tests first (TDD)
+Create: /tests/unit/app/code-editor/page.test.tsx
+Create: /tests/integration/code-editor.test.tsx
+
+# Step 2: Implement feature
+Create: /app/code-editor/page.tsx
+Create: /app/code-editor/components/Editor.tsx
+Create: /types/code-editor.types.ts
+
+# Step 3: Add navigation
+Update: /app/page.tsx (add link to new feature)
+
+# Step 4: Run tests
+npm test
+```
+
+### Adding an API Endpoint
+
+**Example: Adding a "save file" endpoint**
+```bash
+# Step 1: Write API tests
+Create: /tests/unit/app/api/save-file/route.test.ts
+
+# Step 2: Implement endpoint
+Create: /app/api/save-file/route.ts
+
+# Step 3: Add types if needed
+Update: /types/api.types.ts
+
+# Step 4: Test the endpoint
+npm test -- save-file
+```
+
+### Modifying Existing Features
+
+1. **Always check existing tests first** - they document expected behavior
+2. **Update tests before changing code** - ensure you understand the impact
+3. **Run tests frequently** - catch breaks early
+4. **Check the browser console** - watch for runtime errors
+5. **Restart the workflow** - ensure changes are reflected
 
 ---
 
@@ -66,51 +147,139 @@ TDD may be relaxed ONLY for:
 
 ---
 
-## Project Structure
+## Project Structure & Directory Rules
 
-This Next.js application follows a modern monorepo structure with all code organized in the `app` directory using the App Router pattern.
+This Next.js application follows a modern monorepo structure with all code organized in the `app` directory using the App Router pattern. **ALWAYS follow these directory conventions when adding new files.**
 
 ```
-├── app/                          # Next.js App Router directory
+.
+├── app/                          # Next.js App Router (PRIMARY CODE LOCATION)
 │   ├── api/                      # API Route Handlers
-│   │   ├── files/                # File discovery API
-│   │   │   └── route.ts         # GET endpoint for markdown file tree
-│   │   └── markdown/             # Markdown rendering API
-│   │       └── route.ts         # GET endpoint for markdown content
+│   │   ├── files/                # File discovery endpoints
+│   │   │   └── route.ts         # GET: Returns markdown file tree
+│   │   └── markdown/             # Markdown processing endpoints  
+│   │       └── route.ts         # GET: Renders markdown to HTML
+│   │   └── [NEW_ENDPOINT]/      # Add new API routes here
+│   │       └── route.ts         # Use route.ts for all handlers
+│   │
 │   ├── markdown-preview/         # Markdown preview feature
 │   │   ├── page.tsx             # Main preview page (Client Component)
-│   │   └── FileTree.tsx         # File tree navigation component
+│   │   ├── FileTree.tsx         # File tree navigation component
+│   │   └── highlight-theme.css  # Syntax highlighting styles
+│   │
+│   ├── [NEW_FEATURE]/           # Add new pages/features here
+│   │   ├── page.tsx             # Required: Page component
+│   │   ├── loading.tsx          # Optional: Loading state
+│   │   ├── error.tsx            # Optional: Error boundary
+│   │   └── components/          # Feature-specific components
+│   │
+│   ├── components/              # Shared components (create if needed)
+│   │   ├── ui/                  # Reusable UI components
+│   │   └── common/              # Common layout components
+│   │
+│   ├── lib/                     # Utility functions (create if needed)
+│   │   ├── utils.ts            # Helper functions
+│   │   └── constants.ts        # App-wide constants
+│   │
 │   ├── globals.css              # Global styles and Tailwind directives
-│   ├── layout.tsx               # Root layout component
+│   ├── layout.tsx               # Root layout (do not modify without reason)
 │   └── page.tsx                 # Home page (Server Component)
 │
-├── tests/                        # Test suite organized by test type
-│   ├── integration/              # Integration tests
-│   │   └── markdown-preview.test.tsx
-│   └── unit/                     # Unit tests
+├── tests/                        # ALL TESTS GO HERE (TDD REQUIRED)
+│   ├── integration/              # End-to-end and integration tests
+│   │   └── [feature].test.tsx  # Name matches feature being tested
+│   └── unit/                     # Unit tests (mirror app structure)
 │       └── app/
-│           ├── api/
-│           │   ├── files.test.ts
-│           │   └── markdown.test.ts
-│           └── page.test.tsx
+│           ├── api/             # API route tests
+│           │   └── [endpoint].test.ts
+│           └── [feature]/       # Component tests
+│               └── [component].test.tsx
 │
-├── types/                        # Shared TypeScript type definitions
-│   └── index.ts
+├── types/                        # TypeScript type definitions
+│   ├── index.ts                 # Main types export
+│   └── [feature].types.ts      # Feature-specific types
 │
-├── web-bundles/                  # BMad Method framework resources
-│   ├── agents/                   # AI agent definitions
-│   ├── expansion-packs/          # Domain-specific extensions
-│   └── teams/                    # Team configuration templates
+├── public/                      # Static assets (create if needed)
+│   ├── images/                  # Image assets
+│   └── fonts/                   # Custom fonts
 │
-├── attached_assets/              # User-uploaded files and screenshots
+├── docs/                        # Documentation (create if needed)
+│   └── [topic].md              # Technical documentation
 │
-├── jest.config.js               # Jest test configuration
-├── jest.setup.js                # Jest setup and global test utilities
-├── next.config.js               # Next.js configuration
-├── tailwind.config.js           # Tailwind CSS configuration
-├── tsconfig.json                # TypeScript configuration
-└── package.json                 # Project dependencies and scripts
+├── attached_assets/             # User uploads (DO NOT MODIFY)
+├── web-bundles/                 # BMad framework (DO NOT MODIFY)
+│
+└── [CONFIG FILES]               # Root configuration files
+    ├── package.json             # Dependencies and scripts
+    ├── tsconfig.json           # TypeScript configuration  
+    ├── next.config.js          # Next.js configuration
+    ├── tailwind.config.js      # Tailwind CSS configuration
+    ├── jest.config.js          # Jest test configuration
+    ├── jest.setup.js           # Jest setup
+    ├── postcss.config.js       # PostCSS configuration
+    ├── .gitignore              # Git ignore patterns
+    ├── README.md               # Project documentation
+    ├── replit.md               # THIS FILE - Agent instructions
+    └── test-markdown.md        # Test content for preview feature
 ```
+
+### Directory Rules & Best Practices
+
+#### 🚨 CRITICAL RULES - ALWAYS FOLLOW
+
+1. **New Features**: Create new folders under `/app/[feature-name]/` with a `page.tsx` file
+2. **New API Routes**: Create under `/app/api/[endpoint-name]/route.ts` 
+3. **Tests First**: ALWAYS create tests in `/tests/` before implementation (TDD)
+4. **Shared Components**: Place in `/app/components/` only if used by 2+ features
+5. **Types**: Define in `/types/` when shared across multiple files
+6. **Styles**: Component-specific styles use CSS modules or Tailwind classes inline
+7. **Static Files**: Use `/public/` sparingly - prefer Next.js Image optimization
+
+#### 📁 When Adding New Code
+
+**For a new page/feature:**
+```
+1. Create: /tests/unit/app/[feature]/page.test.tsx
+2. Create: /tests/integration/[feature].test.tsx  
+3. Create: /app/[feature]/page.tsx
+4. Create: /app/[feature]/components/ (if needed)
+5. Add types: /types/[feature].types.ts (if needed)
+```
+
+**For a new API endpoint:**
+```
+1. Create: /tests/unit/app/api/[endpoint]/route.test.ts
+2. Create: /app/api/[endpoint]/route.ts
+3. Add types: /types/api.types.ts (extend existing)
+```
+
+**For shared utilities:**
+```
+1. Create: /tests/unit/lib/[utility].test.ts
+2. Create: /app/lib/[utility].ts
+```
+
+#### ❌ NEVER DO THIS
+
+- Don't create files outside the defined structure
+- Don't put components directly in `/app/` root
+- Don't create new root directories without updating this document
+- Don't modify `/web-bundles/` or `/attached_assets/`
+- Don't skip tests - TDD is mandatory
+- Don't use `/pages/` directory (we use App Router, not Pages Router)
+- Don't create `.env` files (use Replit Secrets)
+
+#### 🔍 Quick Reference
+
+| What I'm Building | Where It Goes | Test Location |
+|------------------|---------------|---------------|
+| New page | `/app/[name]/page.tsx` | `/tests/unit/app/[name]/` |
+| API endpoint | `/app/api/[name]/route.ts` | `/tests/unit/app/api/[name]/` |
+| Shared component | `/app/components/[name].tsx` | `/tests/unit/components/` |
+| Utility function | `/app/lib/[name].ts` | `/tests/unit/lib/` |
+| Type definitions | `/types/[name].types.ts` | N/A |
+| Documentation | `/docs/[topic].md` | N/A |
+| Config changes | Root directory | N/A |
 
 ### Key Features
 
