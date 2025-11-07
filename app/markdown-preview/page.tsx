@@ -4,6 +4,8 @@ import React, { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
 import DOMPurify from 'isomorphic-dompurify'
 import mermaid from 'mermaid'
+import hljs from 'highlight.js'
+import './highlight-theme.css'
 import FileTree from './FileTree'
 import { FileNode } from '@/app/api/files/route'
 
@@ -61,6 +63,15 @@ export default function MarkdownPreviewPage() {
     }
 
     renderMermaidDiagrams()
+  }, [html])
+
+  useEffect(() => {
+    if (!contentRef.current || !html) return
+
+    const codeBlocks = contentRef.current.querySelectorAll('pre code:not(.language-mermaid)')
+    codeBlocks.forEach((block) => {
+      hljs.highlightElement(block as HTMLElement)
+    })
   }, [html])
 
   const fetchFiles = async () => {
