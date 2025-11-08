@@ -48,16 +48,28 @@ export default function MarkdownPreviewPage() {
       if (!contentRef.current || !html) return
 
       // Wait for next tick to ensure DOM is fully mounted
-      await new Promise(resolve => setTimeout(resolve, 0))
+      await new Promise(resolve => setTimeout(resolve, 100))
 
       try {
+        // First, let's debug what we're seeing in the DOM
+        const allCodeBlocks = contentRef.current.querySelectorAll('code')
+        console.log('Total code blocks found:', allCodeBlocks.length)
+        allCodeBlocks.forEach((block, i) => {
+          console.log(`Code block ${i} classes:`, block.className)
+        })
+
         const codeBlocks = contentRef.current.querySelectorAll('code.language-mermaid')
+        console.log('Mermaid code blocks found:', codeBlocks.length)
         
-        codeBlocks.forEach((codeBlock) => {
+        codeBlocks.forEach((codeBlock, index) => {
           const pre = codeBlock.parentElement
-          if (!pre || pre.tagName !== 'PRE') return
+          if (!pre || pre.tagName !== 'PRE') {
+            console.warn(`Code block ${index} missing PRE parent`)
+            return
+          }
 
           const mermaidCode = codeBlock.textContent || ''
+          console.log(`Processing mermaid block ${index}, length:`, mermaidCode.length)
           
           const mermaidDiv = document.createElement('div')
           mermaidDiv.className = 'mermaid'
@@ -67,19 +79,17 @@ export default function MarkdownPreviewPage() {
         })
 
         if (codeBlocks.length > 0) {
+          console.log('Initializing mermaid for', codeBlocks.length, 'diagrams')
           // Re-initialize mermaid to clear any previous state
           mermaid.initialize({ startOnLoad: false, theme: 'default' })
           
           await mermaid.run({
             querySelector: '.mermaid',
           })
+          console.log('Mermaid rendering complete')
         }
       } catch (error) {
-        // Silently handle Mermaid rendering errors - the document will still display
-        // Some complex diagrams may not render, but this is non-critical
-        if (process.env.NODE_ENV === 'development') {
-          console.warn('Some Mermaid diagrams could not be rendered:', error)
-        }
+        console.error('Mermaid rendering error:', error)
       }
     }
 
