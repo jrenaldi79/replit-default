@@ -14,6 +14,12 @@ export default function HomePage() {
             </h1>
             <nav className="flex gap-4">
               <Link 
+                href="/tasks"
+                className="text-purple-600 hover:text-purple-700 font-medium transition-colors"
+              >
+                ✅ Tasks Example
+              </Link>
+              <Link 
                 href="/markdown-preview"
                 className="text-purple-600 hover:text-purple-700 font-medium transition-colors"
               >
@@ -47,7 +53,7 @@ export default function HomePage() {
               </ol>
             </div>
 
-            <div className="flex gap-4">
+            <div className="flex gap-4 mb-6">
               <Link 
                 href="/markdown-preview"
                 className="bg-purple-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-purple-700 transition-colors"
@@ -62,6 +68,19 @@ export default function HomePage() {
               >
                 Next.js Docs →
               </a>
+            </div>
+
+            <div className="bg-green-50 border-l-4 border-green-500 p-4">
+              <p className="text-green-800 font-semibold mb-2">🗄️ Database Integration Example:</p>
+              <p className="text-green-700 mb-2">
+                This template includes a working <strong>Supabase database example</strong> showing full CRUD operations.
+              </p>
+              <Link 
+                href="/tasks"
+                className="inline-flex items-center text-green-700 hover:text-green-800 font-medium"
+              >
+                View Tasks Example →
+              </Link>
             </div>
           </div>
 
