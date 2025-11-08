@@ -42,6 +42,27 @@ graph TD
         K --> N["✅ Planning Docs Finalized. Ready to Switch to IDE."]
     end
 
+    style A fill:#f5f5f5,color:#000
+    style B fill:#e3f2fd,color:#000
+    style C fill:#e8f5e9,color:#000
+    style C2 fill:#e8f5e9,color:#000
+    style C3 fill:#e8f5e9,color:#000
+    style D fill:#e8f5e9,color:#000
+    style E fill:#fff3e0,color:#000
+    style E2 fill:#fff3e0,color:#000
+    style F fill:#fff3e0,color:#000
+    style F2 fill:#e3f2fd,color:#000
+    style F3 fill:#e1f5fe,color:#000
+    style F4 fill:#e1f5fe,color:#000
+    style G fill:#e3f2fd,color:#000
+    style H fill:#f3e5f5,color:#000
+    style H2 fill:#f3e5f5,color:#000
+    style Q fill:#e3f2fd,color:#000
+    style R fill:#ffd54f,color:#000
+    style I fill:#f9ab00,color:#fff
+    style J fill:#e3f2fd,color:#000
+    style L fill:#f9ab00,color:#fff
+    style M fill:#fff3e0,color:#000
     style K fill:#34a853,color:#fff
     style N fill:#1a73e8,color:#fff
 ```
@@ -101,6 +122,31 @@ graph TD
 
     style O fill:#f9ab00,color:#fff
     style P fill:#34a853,color:#fff
+    style A fill:#f5f5f5,color:#000
+    style B fill:#e8f5e9,color:#000
+    style B2 fill:#e8f5e9,color:#000
+    style S fill:#e3f2fd,color:#000
+    style T fill:#ffd54f,color:#000
+    style U fill:#ffd54f,color:#000
+    style B3 fill:#e3f2fd,color:#000
+    style B4 fill:#fce4ec,color:#000
+    style C fill:#e3f2fd,color:#000
+    style D fill:#e3f2fd,color:#000
+    style E fill:#e3f2fd,color:#000
+    style V fill:#e3f2fd,color:#000
+    style W fill:#ffd54f,color:#000
+    style X fill:#e3f2fd,color:#000
+    style F fill:#e3f2fd,color:#000
+    style G fill:#e3f2fd,color:#000
+    style H fill:#e3f2fd,color:#000
+    style I fill:#f9ab00,color:#fff
+    style J fill:#ffd54f,color:#000
+    style L fill:#e3f2fd,color:#000
+    style M fill:#ff5722,color:#fff
+    style N fill:#d32f2f,color:#fff
+    style Y fill:#e3f2fd,color:#000
+    style Z fill:#ffd54f,color:#000
+    style K fill:#34a853,color:#fff
 ```
 
 ## Prerequisites
