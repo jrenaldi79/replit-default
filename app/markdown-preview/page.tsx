@@ -51,45 +51,53 @@ export default function MarkdownPreviewPage() {
       await new Promise(resolve => setTimeout(resolve, 100))
 
       try {
-        // First, let's debug what we're seeing in the DOM
-        const allCodeBlocks = contentRef.current.querySelectorAll('code')
-        console.log('Total code blocks found:', allCodeBlocks.length)
-        allCodeBlocks.forEach((block, i) => {
-          console.log(`Code block ${i} classes:`, block.className)
-        })
-
         const codeBlocks = contentRef.current.querySelectorAll('code.language-mermaid')
-        console.log('Mermaid code blocks found:', codeBlocks.length)
         
-        codeBlocks.forEach((codeBlock, index) => {
-          const pre = codeBlock.parentElement
-          if (!pre || pre.tagName !== 'PRE') {
-            console.warn(`Code block ${index} missing PRE parent`)
-            return
+        if (codeBlocks.length === 0) return
+
+        // Initialize mermaid once
+        mermaid.initialize({ 
+          startOnLoad: false, 
+          theme: 'default',
+          securityLevel: 'loose',
+          flowchart: {
+            useMaxWidth: true,
+            htmlLabels: true
           }
+        })
+        
+        // Process each mermaid block individually
+        for (let i = 0; i < codeBlocks.length; i++) {
+          const codeBlock = codeBlocks[i]
+          const pre = codeBlock.parentElement
+          if (!pre || pre.tagName !== 'PRE') continue
 
           const mermaidCode = codeBlock.textContent || ''
-          console.log(`Processing mermaid block ${index}, length:`, mermaidCode.length)
+          const id = `mermaid-${Date.now()}-${i}`
           
-          const mermaidDiv = document.createElement('div')
-          mermaidDiv.className = 'mermaid'
-          mermaidDiv.textContent = mermaidCode
-          
-          pre.replaceWith(mermaidDiv)
-        })
-
-        if (codeBlocks.length > 0) {
-          console.log('Initializing mermaid for', codeBlocks.length, 'diagrams')
-          // Re-initialize mermaid to clear any previous state
-          mermaid.initialize({ startOnLoad: false, theme: 'default' })
-          
-          await mermaid.run({
-            querySelector: '.mermaid',
-          })
-          console.log('Mermaid rendering complete')
+          try {
+            // Create a container div
+            const container = document.createElement('div')
+            container.className = 'mermaid-container my-6'
+            
+            // Use mermaid.render to render the diagram
+            const { svg } = await mermaid.render(id, mermaidCode)
+            
+            // Insert the SVG into the container
+            container.innerHTML = svg
+            
+            // Replace the pre element with the rendered diagram
+            pre.replaceWith(container)
+          } catch (innerError) {
+            // If this specific diagram fails, leave it as a code block
+            console.warn(`Failed to render mermaid diagram ${i}:`, innerError)
+          }
         }
       } catch (error) {
-        console.error('Mermaid rendering error:', error)
+        // Silently handle general Mermaid errors - the document will still display
+        if (process.env.NODE_ENV === 'development') {
+          console.warn('Mermaid rendering error:', error)
+        }
       }
     }
 
