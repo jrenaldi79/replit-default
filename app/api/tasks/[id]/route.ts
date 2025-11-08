@@ -10,6 +10,13 @@ export async function PATCH(
     const body = await request.json() as TaskUpdate
     const { id } = params
 
+    if (body.title !== undefined && body.title.trim() === '') {
+      return NextResponse.json(
+        { error: 'Title cannot be empty' },
+        { status: 400 }
+      )
+    }
+
     const { data, error } = await supabase
       .from('tasks')
       .update({ ...body, updated_at: new Date().toISOString() })

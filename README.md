@@ -68,6 +68,29 @@ Replace the shell app with YOUR idea:
 - 📚 Educational platform
 - Whatever you imagine!
 
+## 🗄️ Database Integration Example
+
+This template includes a **working Supabase database example** to help you learn how to integrate a database into your app:
+
+- **Live Demo:** Visit `/tasks` to see it in action
+- **Full CRUD Operations:** Create, Read, Update, Delete tasks
+- **Complete Code Examples:** API routes, UI components, and TypeScript types
+- **Security Best Practices:** Row Level Security (RLS) setup and environment variable configuration
+
+### Get Started with the Database Example
+
+📖 **[View Complete Setup Guide →](SUPABASE_SETUP.md)**
+
+The guide includes:
+- ✅ Step-by-step Supabase project setup
+- ✅ SQL schema and sample data
+- ✅ Environment variable configuration
+- ✅ Security and RLS best practices
+- ✅ API endpoint documentation
+- ✅ Troubleshooting tips
+
+**Study the example code** in `app/tasks/`, `app/api/tasks/`, and `lib/supabase.ts` to understand how to build database-backed features in your own app!
+
 ## 🛠️ Pre-Configured Tech Stack
 
 | Category | Technology | Why It's Included |
