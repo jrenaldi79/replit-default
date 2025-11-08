@@ -53,12 +53,20 @@ export default function HomePage() {
               <p className="text-green-700 mb-2">
                 This template includes a working <strong>Supabase database example</strong> showing full CRUD operations.
               </p>
-              <Link 
-                href="/tasks"
-                className="inline-flex items-center text-green-700 hover:text-green-800 font-medium"
-              >
-                View Tasks Example →
-              </Link>
+              <div className="flex gap-4">
+                <Link 
+                  href="/tasks"
+                  className="inline-flex items-center text-green-700 hover:text-green-800 font-medium"
+                >
+                  View Tasks Example →
+                </Link>
+                <Link 
+                  href="/markdown-preview?file=SUPABASE_SETUP.md"
+                  className="inline-flex items-center text-green-700 hover:text-green-800 font-medium underline"
+                >
+                  📖 Setup Guide
+                </Link>
+              </div>
             </div>
           </div>
 
@@ -82,6 +90,12 @@ export default function HomePage() {
                 <li><strong>API Design</strong> - RESTful conventions and response formats</li>
                 <li><strong>Performance Guidelines</strong> - Optimization strategies</li>
               </ul>
+              <Link 
+                href="/markdown-preview?file=replit.md"
+                className="inline-block mt-3 text-purple-700 hover:text-purple-800 font-medium underline"
+              >
+                📖 View Full replit.md Documentation →
+              </Link>
             </div>
 
             <div className="bg-gray-50 p-4 rounded-lg">

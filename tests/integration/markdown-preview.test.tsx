@@ -4,6 +4,13 @@ import userEvent from '@testing-library/user-event'
 import '@testing-library/jest-dom'
 import MarkdownPreviewPage from '../../app/markdown-preview/page'
 
+// Mock next/navigation
+jest.mock('next/navigation', () => ({
+  useSearchParams: jest.fn(() => ({
+    get: jest.fn(() => null)
+  }))
+}))
+
 // Mock mermaid
 jest.mock('mermaid', () => ({
   __esModule: true,

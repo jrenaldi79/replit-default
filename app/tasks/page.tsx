@@ -237,6 +237,14 @@ export default function TasksPage() {
               <code className="bg-gray-100 px-2 py-1 rounded">app/api/tasks/</code>, and 
               <code className="bg-gray-100 px-2 py-1 rounded">lib/supabase.ts</code> to understand how it works!
             </p>
+            <div className="mt-4">
+              <a 
+                href="/markdown-preview?file=SUPABASE_SETUP.md"
+                className="inline-block bg-purple-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-purple-700 transition-colors"
+              >
+                📖 View Supabase Setup Guide
+              </a>
+            </div>
           </div>
         </div>
       </div>

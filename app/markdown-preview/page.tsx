@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
+import { useSearchParams } from 'next/navigation'
 import DOMPurify from 'isomorphic-dompurify'
 import mermaid from 'mermaid'
 import hljs from 'highlight.js'
@@ -16,6 +17,7 @@ interface MarkdownContent {
 }
 
 export default function MarkdownPreviewPage() {
+  const searchParams = useSearchParams()
   const [fileTree, setFileTree] = useState<FileNode[]>([])
   const [selectedFile, setSelectedFile] = useState<string | null>(null)
   const [markdown, setMarkdown] = useState('')
@@ -31,6 +33,15 @@ export default function MarkdownPreviewPage() {
   useEffect(() => {
     fetchFiles()
   }, [])
+
+  useEffect(() => {
+    // Check if there's a file parameter in the URL
+    const fileParam = searchParams?.get('file')
+    if (fileParam && fileParam !== selectedFile) {
+      fetchMarkdown(fileParam)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams])
 
   useEffect(() => {
     const renderMermaidDiagrams = async () => {

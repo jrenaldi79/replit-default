@@ -1,4 +1,4 @@
-import { NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 import fs from 'fs/promises'
 import path from 'path'
 
@@ -99,8 +99,29 @@ function sortNodes(nodes: FileNode[]): FileNode[] {
   return sorted
 }
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
+    const searchParams = request.nextUrl.searchParams
+    const filePath = searchParams.get('path')
+
+    // If a specific file is requested, return its content
+    if (filePath) {
+      // Only allow specific documentation files for security
+      const allowedFiles = ['replit.md', 'SUPABASE_SETUP.md']
+      if (!allowedFiles.includes(filePath)) {
+        return NextResponse.json(
+          { error: 'File not allowed' },
+          { status: 403 }
+        )
+      }
+
+      // Read file from project root
+      const fullPath = path.join(PROJECT_ROOT, filePath)
+      const content = await fs.readFile(fullPath, 'utf-8')
+      return NextResponse.json({ content })
+    }
+
+    // Otherwise, return the tree of all markdown files
     const files = await findMarkdownFiles(PROJECT_ROOT)
     const tree = buildTree(files)
     return NextResponse.json(tree)

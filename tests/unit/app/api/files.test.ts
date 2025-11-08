@@ -2,13 +2,22 @@
  * @jest-environment node
  */
 import { GET } from '../../../../app/api/files/route'
+import { NextRequest } from 'next/server'
 import fs from 'fs/promises'
 
 // Mock the fs module
 jest.mock('fs/promises')
 
+// Helper to create mock NextRequest
+function createMockNextRequest(url: string): NextRequest {
+  return {
+    nextUrl: new URL(url),
+  } as NextRequest
+}
+
 describe('GET /api/files', () => {
   const mockReaddir = fs.readdir as jest.MockedFunction<typeof fs.readdir>
+  const mockReadFile = fs.readFile as jest.MockedFunction<typeof fs.readFile>
 
   beforeEach(() => {
     jest.clearAllMocks()
@@ -27,7 +36,8 @@ describe('GET /api/files', () => {
         { name: 'guide.md', isFile: () => true, isDirectory: () => false },
       ] as any)
 
-    const response = await GET()
+    const request = createMockNextRequest('http://localhost:3000/api/files')
+    const response = await GET(request)
     const data = await response.json()
 
     expect(response.status).toBe(200)
@@ -50,7 +60,8 @@ describe('GET /api/files', () => {
       { name: 'README.md', isFile: () => true, isDirectory: () => false },
     ] as any)
 
-    const response = await GET()
+    const request = createMockNextRequest('http://localhost:3000/api/files')
+    const response = await GET(request)
     const data = await response.json()
 
     expect(mockReaddir).toHaveBeenCalledTimes(1)
@@ -61,7 +72,56 @@ describe('GET /api/files', () => {
   it('handles errors gracefully', async () => {
     mockReaddir.mockRejectedValueOnce(new Error('File system error'))
 
-    const response = await GET()
+    const request = createMockNextRequest('http://localhost:3000/api/files')
+    const response = await GET(request)
+    const data = await response.json()
+
+    expect(response.status).toBe(500)
+    expect(data).toHaveProperty('error')
+  })
+
+  it('returns content of allowed documentation file', async () => {
+    const mockContent = '# Replit Documentation\n\nThis is test content.'
+    mockReadFile.mockResolvedValueOnce(mockContent as any)
+
+    const request = createMockNextRequest('http://localhost:3000/api/files?path=replit.md')
+    const response = await GET(request)
+    const data = await response.json()
+
+    expect(response.status).toBe(200)
+    expect(data).toHaveProperty('content')
+    expect(data.content).toBe(mockContent)
+    expect(mockReadFile).toHaveBeenCalled()
+  })
+
+  it('returns content of SUPABASE_SETUP.md file', async () => {
+    const mockContent = '# Supabase Setup\n\nSetup instructions.'
+    mockReadFile.mockResolvedValueOnce(mockContent as any)
+
+    const request = createMockNextRequest('http://localhost:3000/api/files?path=SUPABASE_SETUP.md')
+    const response = await GET(request)
+    const data = await response.json()
+
+    expect(response.status).toBe(200)
+    expect(data).toHaveProperty('content')
+    expect(data.content).toBe(mockContent)
+  })
+
+  it('rejects requests for non-allowed files', async () => {
+    const request = createMockNextRequest('http://localhost:3000/api/files?path=package.json')
+    const response = await GET(request)
+    const data = await response.json()
+
+    expect(response.status).toBe(403)
+    expect(data).toHaveProperty('error')
+    expect(data.error).toContain('not allowed')
+  })
+
+  it('handles file read errors gracefully', async () => {
+    mockReadFile.mockRejectedValueOnce(new Error('File not found'))
+
+    const request = createMockNextRequest('http://localhost:3000/api/files?path=replit.md')
+    const response = await GET(request)
     const data = await response.json()
 
     expect(response.status).toBe(500)
