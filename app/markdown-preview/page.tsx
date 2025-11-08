@@ -47,6 +47,9 @@ export default function MarkdownPreviewPage() {
     const renderMermaidDiagrams = async () => {
       if (!contentRef.current || !html) return
 
+      // Wait for next tick to ensure DOM is fully mounted
+      await new Promise(resolve => setTimeout(resolve, 0))
+
       try {
         const codeBlocks = contentRef.current.querySelectorAll('code.language-mermaid')
         
@@ -64,6 +67,9 @@ export default function MarkdownPreviewPage() {
         })
 
         if (codeBlocks.length > 0) {
+          // Re-initialize mermaid to clear any previous state
+          mermaid.initialize({ startOnLoad: false, theme: 'default' })
+          
           await mermaid.run({
             querySelector: '.mermaid',
           })
