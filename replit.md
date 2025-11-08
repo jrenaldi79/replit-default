@@ -8,6 +8,15 @@ This project is a Next.js 16 starter template for Northwestern MPD2 students, fe
     1.  **A Document Viewer (`/markdown-preview`)**: For referencing BMAD methodology documentation. This part of the app is maintained as is.
     2.  **A Shell Main App (`/`)**: A starter structure for students to replace with their own projects. This is where you will build.
 
+## 1. AI Agent Pre-Implementation Checklist
+
+Before writing ANY implementation code, the AI MUST verify:
+- [ ] Have I written failing tests that define success?
+- [ ] Have I run those tests to confirm they're RED?
+- [ ] Can I describe what "passing" looks like in concrete assertions?
+
+If ANY answer is "no" → STOP and write tests first.
+
 ## 2. 🚨 THE LAW: Test-Driven Development (TDD) First
 
 **EVERY feature request or code change MUST start by writing tests *before* any implementation. This is the most important rule. There are no exceptions for feature work.**
