@@ -1,3 +1,7 @@
+/**
+ * @jest-environment node
+ */
+
 import { GET, POST } from '@/app/api/tasks/route'
 import { PATCH, DELETE } from '@/app/api/tasks/[id]/route'
 import { supabase } from '@/lib/supabase'

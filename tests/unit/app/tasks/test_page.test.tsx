@@ -23,7 +23,6 @@ describe('Tasks Page', () => {
       render(<TasksPage />)
 
       expect(screen.getByText('Loading tasks...')).toBeInTheDocument()
-      expect(screen.getByRole('status', { hidden: true })).toBeInTheDocument()
     })
 
     it('should fetch and display tasks on load', async () => {

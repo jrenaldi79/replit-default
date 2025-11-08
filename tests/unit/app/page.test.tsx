@@ -6,31 +6,51 @@ import HomePage from '../../../app/page'
 describe('HomePage', () => {
   it('renders the main heading', () => {
     render(<HomePage />)
-    const heading = screen.getByRole('heading', { name: /hello world/i })
+    const heading = screen.getByRole('heading', { name: /northwestern mpd2 starter template/i })
     expect(heading).toBeInTheDocument()
   })
 
-  it('renders the success message', () => {
+  it('renders the welcome message', () => {
     render(<HomePage />)
-    const message = screen.getByText(/your next.js app is running successfully/i)
+    const message = screen.getByText(/welcome to your next.js starter project/i)
     expect(message).toBeInTheDocument()
-  })
-
-  it('renders the port information', () => {
-    render(<HomePage />)
-    const portInfo = screen.getByText(/running on port 5000/i)
-    expect(portInfo).toBeInTheDocument()
   })
 
   it('renders navigation links', () => {
     render(<HomePage />)
-    const mainAppLink = screen.getByRole('link', { name: /main app/i })
-    const markdownLink = screen.getByRole('link', { name: /markdown preview/i })
+    const tasksLink = screen.getByRole('link', { name: /tasks example/i })
+    const markdownLink = screen.getByRole('link', { name: /bmad docs/i })
     
-    expect(mainAppLink).toBeInTheDocument()
-    expect(mainAppLink).toHaveAttribute('href', '/')
+    expect(tasksLink).toBeInTheDocument()
+    expect(tasksLink).toHaveAttribute('href', '/tasks')
     
     expect(markdownLink).toBeInTheDocument()
     expect(markdownLink).toHaveAttribute('href', '/markdown-preview')
+  })
+
+  it('renders the TDD framework section', () => {
+    render(<HomePage />)
+    const tddSection = screen.getByText(/test-driven development \(tdd\) framework/i)
+    expect(tddSection).toBeInTheDocument()
+  })
+
+  it('renders the AI coding assistant section', () => {
+    render(<HomePage />)
+    const aiSection = screen.getByText(/ai coding assistant instructions/i)
+    expect(aiSection).toBeInTheDocument()
+  })
+
+  it('renders the database integration callout', () => {
+    render(<HomePage />)
+    const dbCallout = screen.getByText(/database integration example/i)
+    expect(dbCallout).toBeInTheDocument()
+    expect(screen.getByText(/supabase database example/i)).toBeInTheDocument()
+  })
+
+  it('renders link to Supabase tasks example', () => {
+    render(<HomePage />)
+    const tasksExampleLink = screen.getByRole('link', { name: /view tasks example/i })
+    expect(tasksExampleLink).toBeInTheDocument()
+    expect(tasksExampleLink).toHaveAttribute('href', '/tasks')
   })
 })
