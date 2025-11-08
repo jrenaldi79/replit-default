@@ -69,7 +69,7 @@ export default function MarkdownPreviewPage() {
           }
         })
 
-        // Configure mermaid for vertical layouts with improved settings
+        // Configure mermaid for FORCED vertical layouts
         mermaid.initialize({ 
           startOnLoad: false, 
           theme: 'default',
@@ -89,10 +89,11 @@ export default function MarkdownPreviewPage() {
             useMaxWidth: false,
             htmlLabels: true,
             curve: 'basis',
-            rankSpacing: 100,  // Increase vertical spacing
-            nodeSpacing: 30,   // Reduce horizontal spacing
+            rankSpacing: 150,     // Much larger vertical spacing to stretch vertically
+            nodeSpacing: 10,      // Very tight horizontal spacing to compress horizontally
             diagramPadding: 20,
-            defaultRenderer: 'dagre-d3'  // Better layout engine
+            defaultRenderer: 'dagre-wrapper',  // Use dagre-wrapper for better control
+            wrappingWidth: 200    // Force text wrapping in nodes
           },
           sequence: {
             useMaxWidth: false,
@@ -122,13 +123,108 @@ export default function MarkdownPreviewPage() {
 
           let mermaidCode = codeBlock.textContent || ''
           
-          // Force vertical orientation for flowcharts
-          if (mermaidCode.includes('graph') && !mermaidCode.includes('graph TD') && !mermaidCode.includes('graph TB')) {
-            // Replace LR (left-right) with TD (top-down)
-            mermaidCode = mermaidCode.replace(/graph\s+LR/g, 'graph TD')
-            mermaidCode = mermaidCode.replace(/graph\s+RL/g, 'graph TD')
-            // If no direction specified, add TD
-            mermaidCode = mermaidCode.replace(/^(\s*graph)(\s+[^TBLR])/, '$1 TD$2')
+          // Force vertical orientation by restructuring the graph
+          if (mermaidCode.includes('graph')) {
+            // Always use TB (top-bottom)
+            mermaidCode = mermaidCode.replace(/graph\s+(TD|LR|RL|BT)/gi, 'graph TB')
+            
+            // If no direction specified, add TB
+            if (!mermaidCode.match(/graph\s+(TD|TB|LR|RL|BT)/)) {
+              mermaidCode = mermaidCode.replace(/graph(\s|$)/, 'graph TB$1')
+            }
+            
+            // Parse the graph to extract nodes and connections
+            const lines = mermaidCode.split('\n')
+            const nodes = new Map<string, string>()
+            const connections: Array<{from: string, to: string, label?: string}> = []
+            let inSubgraph = false
+            let subgraphContent: string[] = []
+            
+            for (const line of lines) {
+              // Skip subgraph processing for now
+              if (line.includes('subgraph')) {
+                inSubgraph = true
+                subgraphContent.push(line)
+                continue
+              }
+              if (line.includes('end') && inSubgraph) {
+                inSubgraph = false
+                subgraphContent.push(line)
+                continue
+              }
+              if (inSubgraph) {
+                subgraphContent.push(line)
+                continue
+              }
+              
+              // Parse node definitions and connections
+              const connectionMatch = line.match(/(\w+)(?:\[([^\]]+)\])?\s*-->(.*?)\s*(\w+)(?:\[([^\]]+)\])?/)
+              if (connectionMatch) {
+                const [, from, fromLabel, arrow, to, toLabel] = connectionMatch
+                
+                // Store node labels if present
+                if (fromLabel) nodes.set(from, fromLabel)
+                if (toLabel) nodes.set(to, toLabel)
+                
+                // Store connection
+                connections.push({ from, to, label: arrow.includes('|') ? arrow : undefined })
+              } else if (line.includes('[') && line.includes(']')) {
+                // Standalone node definition
+                const nodeMatch = line.match(/(\w+)\[([^\]]+)\]/)
+                if (nodeMatch) {
+                  nodes.set(nodeMatch[1], nodeMatch[2])
+                }
+              }
+            }
+            
+            // Rebuild the graph with forced vertical structure
+            // Add invisible nodes between connections to force vertical spacing
+            let rebuiltCode = mermaidCode.split('\n')[0] + '\n' // Keep the graph TB line
+            
+            // Add subgraph content back first
+            if (subgraphContent.length > 0) {
+              rebuiltCode += subgraphContent.join('\n') + '\n'
+            }
+            
+            // Add all node definitions first
+            for (const [nodeId, label] of nodes) {
+              rebuiltCode += `    ${nodeId}[${label}]\n`
+            }
+            
+            // Add connections with invisible spacer nodes to force vertical layout
+            let spacerCount = 0
+            for (let i = 0; i < connections.length; i++) {
+              const conn = connections[i]
+              
+              // For parallel branches (multiple nodes connecting from the same source),
+              // add invisible nodes to force them to stack vertically
+              const parallelConnections = connections.filter(c => c.from === conn.from)
+              if (parallelConnections.length > 1 && parallelConnections[0] === conn) {
+                // This is the first of multiple parallel connections
+                // Add invisible spacers between them
+                for (let j = 0; j < parallelConnections.length; j++) {
+                  const pc = parallelConnections[j]
+                  if (j > 0) {
+                    // Add invisible spacer node
+                    const spacerId = `spacer${spacerCount++}`
+                    rebuiltCode += `    ${spacerId}[ ]\n`
+                    rebuiltCode += `    ${pc.from} --> ${spacerId}\n`
+                    rebuiltCode += `    ${spacerId} --> ${pc.to}\n`
+                    rebuiltCode += `    style ${spacerId} fill:transparent,stroke:transparent\n`
+                  } else {
+                    // First connection, add normally
+                    rebuiltCode += `    ${pc.from} --> ${pc.to}\n`
+                  }
+                }
+                // Skip the parallel connections we just processed
+                i += parallelConnections.length - 1
+              } else if (parallelConnections.length === 1) {
+                // Single connection, add normally
+                rebuiltCode += `    ${conn.from} --> ${conn.to}\n`
+              }
+            }
+            
+            mermaidCode = rebuiltCode
           }
           
           let attempts = 3
@@ -150,7 +246,7 @@ export default function MarkdownPreviewPage() {
               // Insert SVG
               container.innerHTML = svg
               
-              // Optimize SVG dimensions for vertical layout
+              // Optimize SVG dimensions for display
               const svgElement = container.querySelector('svg')
               if (svgElement) {
                 // Remove any fixed dimensions
@@ -159,21 +255,28 @@ export default function MarkdownPreviewPage() {
                 svgElement.style.maxWidth = '100%'
                 svgElement.style.height = 'auto'
                 
-                // Check viewBox and adjust if needed
+                // Check viewBox to see if we need to adjust container
                 const viewBox = svgElement.getAttribute('viewBox')
                 if (viewBox) {
                   const [x, y, width, height] = viewBox.split(' ').map(Number)
                   
-                  // If diagram is very wide, constrain it
-                  if (width > height * 2) {
-                    container.style.maxWidth = '900px'
-                    container.style.margin = '1.5rem auto'
-                  }
+                  // Log for debugging
+                  console.log(`Diagram ${i}: ${width}x${height} (${width > height * 1.5 ? 'horizontal' : 'vertical'}) - spacer nodes added to force vertical layout`)
                   
-                  // Ensure minimum height for better visibility
-                  if (height < 200) {
-                    svgElement.style.minHeight = '200px'
+                  // Adjust container based on diagram proportions
+                  if (width > height * 2) {
+                    // Very wide diagram - constrain width more
+                    container.style.maxWidth = '100%'
+                    container.style.overflow = 'auto'
+                  } else {
+                    // Normal proportions
+                    container.style.maxWidth = '900px'
                   }
+                  container.style.margin = '1.5rem auto'
+                } else {
+                  // No viewBox, apply safe defaults
+                  container.style.maxWidth = '900px'
+                  container.style.margin = '1.5rem auto'
                 }
               }
               
