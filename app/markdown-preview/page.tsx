@@ -75,6 +75,7 @@ export default function MarkdownPreviewPage() {
           startOnLoad: false,
           theme: 'default',
           securityLevel: 'loose',
+          maxTextSize: 100000,  // Increase text size limit for complex diagrams
           themeVariables: {
             primaryColor: '#f3f4f6',
             primaryTextColor: '#111827',
@@ -87,13 +88,12 @@ export default function MarkdownPreviewPage() {
             tertiaryColor: '#ffffff'
           },
           flowchart: {
-            useMaxWidth: true,    // Constrain width to force vertical layout
+            useMaxWidth: false,   // Don't auto-scale - we'll control via CSS
             htmlLabels: true,
             curve: 'basis',
-            rankSpacing: 100,     // Increase vertical spacing between ranks
-            nodeSpacing: 20,      // Reduce horizontal spacing to discourage wide layouts
-            diagramPadding: 20,
-            defaultRenderer: 'dagre-d3'
+            rankSpacing: 120,     // Increase vertical spacing between ranks
+            nodeSpacing: 15,      // Reduce horizontal spacing to strongly discourage wide layouts
+            diagramPadding: 15
           },
           sequence: {
             useMaxWidth: false,
@@ -170,52 +170,38 @@ export default function MarkdownPreviewPage() {
             try {
               // Generate unique ID for each attempt
               const id = `mermaid-${Date.now()}-${i}-${Math.random().toString(36).substr(2, 5)}`
-              
-              // Create container (CSS classes handle all styling)
+
+              // Render diagram with constrained layout settings from mermaid.initialize()
+              const { svg } = await mermaid.render(id, mermaidCode)
+
+              // Create container with width constraints (from CSS)
               const container = document.createElement('div')
               container.className = 'mermaid-container my-6'
-              
-              // Render diagram
-              const { svg } = await mermaid.render(id, mermaidCode)
-              
+
               // Insert SVG
               container.innerHTML = svg
               
               // Optimize SVG dimensions and DETECT horizontal rendering
               const svgElement = container.querySelector('svg')
               if (svgElement) {
-                // Check the viewBox to determine if diagram rendered horizontally
+                // Check the viewBox to determine diagram orientation
                 const viewBox = svgElement.getAttribute('viewBox')
-                let isHorizontal = false
 
                 if (viewBox) {
                   const [x, y, width, height] = viewBox.split(' ').map(Number)
-                  isHorizontal = width > height * 1.5  // If width is significantly > height
+                  const isWide = width > height * 1.5  // If width is significantly > height
 
-                  if (isHorizontal) {
-                    console.warn(`Diagram ${i} rendered horizontally (${width}x${height}). This should be vertical!`)
-                    console.warn('Diagram code:', mermaidCode.substring(0, 300))
+                  // Log layout info for debugging (not an error - complex diagrams may need horizontal space)
+                  if (isWide) {
+                    console.info(`ℹ️ Diagram ${i}: Wide layout (${Math.round(width)}x${Math.round(height)}px). Complex diagrams may require horizontal scrolling.`)
+                  } else {
+                    console.log(`✅ Diagram ${i}: Vertical layout (${Math.round(width)}x${Math.round(height)}px)`)
                   }
                 }
 
-                // Let SVG use its natural dimensions for proper vertical layout
-                // Only remove width/height attributes that might constrain it
-                const originalWidth = svgElement.getAttribute('width')
-                const originalHeight = svgElement.getAttribute('height')
-
+                // Remove explicit width/height to let CSS handle responsive sizing
                 svgElement.removeAttribute('width')
                 svgElement.removeAttribute('height')
-
-                // Let CSS handle sizing (from mermaid-styles.css)
-                // Don't override with inline styles
-
-                // Log dimensions for debugging
-                if (isHorizontal) {
-                  console.error(`❌ Diagram ${i} STILL horizontal after conversion! Original: ${originalWidth}x${originalHeight}`)
-                  console.error('This indicates Mermaid is ignoring TB direction. Check console for processed code.')
-                } else {
-                  console.log(`✅ Diagram ${i} rendered vertically`)
-                }
 
                 // Preserve aspect ratio
                 svgElement.setAttribute('preserveAspectRatio', 'xMidYMid meet')
