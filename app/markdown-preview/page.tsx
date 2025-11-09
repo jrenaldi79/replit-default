@@ -87,11 +87,11 @@ export default function MarkdownPreviewPage() {
             tertiaryColor: '#ffffff'
           },
           flowchart: {
-            useMaxWidth: false,
+            useMaxWidth: true,    // Constrain width to force vertical layout
             htmlLabels: true,
             curve: 'basis',
-            rankSpacing: 80,      // Vertical spacing between ranks
-            nodeSpacing: 50,      // Horizontal spacing between nodes in same rank
+            rankSpacing: 100,     // Increase vertical spacing between ranks
+            nodeSpacing: 20,      // Reduce horizontal spacing to discourage wide layouts
             diagramPadding: 20,
             defaultRenderer: 'dagre-d3'
           },
@@ -123,24 +123,44 @@ export default function MarkdownPreviewPage() {
 
           let mermaidCode = codeBlock.textContent || ''
 
-          // Simple, reliable vertical orientation enforcement
+          // AGGRESSIVE vertical orientation enforcement with direction statement injection
           if (mermaidCode.includes('graph') || mermaidCode.includes('flowchart')) {
-            // Strategy: Simply ensure the direction is TB, don't over-complicate
+            // Strategy: Inject explicit direction TB statement into the diagram
 
-            // Replace horizontal directions with TB (top-to-bottom)
+            // First, normalize all to TB direction
             mermaidCode = mermaidCode.replace(/graph\s+LR\b/gi, 'graph TB')
             mermaidCode = mermaidCode.replace(/graph\s+RL\b/gi, 'graph TB')
+            mermaidCode = mermaidCode.replace(/graph\s+TD\b/gi, 'graph TB')
             mermaidCode = mermaidCode.replace(/flowchart\s+LR\b/gi, 'flowchart TB')
             mermaidCode = mermaidCode.replace(/flowchart\s+RL\b/gi, 'flowchart TB')
-
-            // Normalize TD to TB for consistency
-            mermaidCode = mermaidCode.replace(/graph\s+TD\b/gi, 'graph TB')
             mermaidCode = mermaidCode.replace(/flowchart\s+TD\b/gi, 'flowchart TB')
 
             // If graph/flowchart has no direction, add TB
             mermaidCode = mermaidCode.replace(/^(\s*)(graph|flowchart)(\s*\n)/gim, '$1$2 TB$3')
 
-            console.log('🔄 Enforced TB direction:', mermaidCode.substring(0, 200))
+            // CRITICAL: Add init directive to force layout engine parameters
+            // This is the MOST aggressive way to override Mermaid's layout decisions
+            // Use regex to detect existing init blocks regardless of spacing/casing
+            if (!/%{2,}\s*\{\s*init\s*:/i.test(mermaidCode)) {
+              // Prepend init directive that forces TB layout at the engine level
+              mermaidCode = `%%{init: {'flowchart': {'rankDir': 'TB'}, 'theme': 'default'}}%%\n${mermaidCode}`
+            }
+
+            // ALSO inject explicit direction TB statement for double enforcement
+            if (!mermaidCode.includes('direction TB') && !mermaidCode.includes('direction LR')) {
+              const lines = mermaidCode.split('\n')
+              for (let lineIdx = 0; lineIdx < lines.length; lineIdx++) {
+                const trimmed = lines[lineIdx].trim()
+                if (trimmed.startsWith('graph ') || trimmed.startsWith('flowchart ')) {
+                  // Insert direction TB as the very next line
+                  lines.splice(lineIdx + 1, 0, '    direction TB')
+                  break
+                }
+              }
+              mermaidCode = lines.join('\n')
+            }
+
+            console.log('🔄 Enforced TB with direction statement:', mermaidCode.substring(0, 300))
           }
           
           let attempts = 3
