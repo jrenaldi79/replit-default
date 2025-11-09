@@ -70,8 +70,8 @@ export default function MarkdownPreviewPage() {
         })
 
         // Configure mermaid for vertical layouts with improved settings
-        mermaid.initialize({ 
-          startOnLoad: false, 
+        mermaid.initialize({
+          startOnLoad: false,
           theme: 'default',
           securityLevel: 'loose',
           themeVariables: {
@@ -89,10 +89,11 @@ export default function MarkdownPreviewPage() {
             useMaxWidth: false,
             htmlLabels: true,
             curve: 'basis',
-            rankSpacing: 100,  // Increase vertical spacing
-            nodeSpacing: 30,   // Reduce horizontal spacing
+            rankSpacing: 80,      // Vertical spacing between ranks
+            nodeSpacing: 50,      // Horizontal spacing between nodes in same rank
             diagramPadding: 20,
-            defaultRenderer: 'dagre-d3'  // Better layout engine
+            defaultRenderer: 'dagre-d3',
+            rankdir: 'TB'         // Force top-to-bottom direction
           },
           sequence: {
             useMaxWidth: false,
@@ -121,14 +122,22 @@ export default function MarkdownPreviewPage() {
           if (!pre || pre.tagName !== 'PRE') continue
 
           let mermaidCode = codeBlock.textContent || ''
-          
-          // Force vertical orientation for flowcharts
-          if (mermaidCode.includes('graph') && !mermaidCode.includes('graph TD') && !mermaidCode.includes('graph TB')) {
-            // Replace LR (left-right) with TD (top-down)
+
+          // Force vertical orientation for all flowcharts
+          if (mermaidCode.includes('graph')) {
+            // Add explicit init directive for vertical layout if not present
+            if (!mermaidCode.includes('%%{init:')) {
+              mermaidCode = `%%{init: {'flowchart': {'rankdir': 'TB'}}}%%\n${mermaidCode}`
+            }
+
+            // Replace any horizontal orientations with vertical
             mermaidCode = mermaidCode.replace(/graph\s+LR/g, 'graph TD')
             mermaidCode = mermaidCode.replace(/graph\s+RL/g, 'graph TD')
-            // If no direction specified, add TD
-            mermaidCode = mermaidCode.replace(/^(\s*graph)(\s+[^TBLR])/, '$1 TD$2')
+
+            // Ensure graph has a direction - if TD/TB is missing, add it
+            if (!mermaidCode.match(/graph\s+(TD|TB|BT|LR|RL)/)) {
+              mermaidCode = mermaidCode.replace(/graph(\s|$)/, 'graph TD$1')
+            }
           }
           
           let attempts = 3
@@ -153,28 +162,16 @@ export default function MarkdownPreviewPage() {
               // Optimize SVG dimensions for vertical layout
               const svgElement = container.querySelector('svg')
               if (svgElement) {
-                // Remove any fixed dimensions
+                // Remove any fixed dimensions that might force horizontal layout
                 svgElement.removeAttribute('width')
                 svgElement.removeAttribute('height')
+                svgElement.style.width = '100%'
                 svgElement.style.maxWidth = '100%'
                 svgElement.style.height = 'auto'
-                
-                // Check viewBox and adjust if needed
-                const viewBox = svgElement.getAttribute('viewBox')
-                if (viewBox) {
-                  const [x, y, width, height] = viewBox.split(' ').map(Number)
-                  
-                  // If diagram is very wide, constrain it
-                  if (width > height * 2) {
-                    container.style.maxWidth = '900px'
-                    container.style.margin = '1.5rem auto'
-                  }
-                  
-                  // Ensure minimum height for better visibility
-                  if (height < 200) {
-                    svgElement.style.minHeight = '200px'
-                  }
-                }
+                svgElement.style.minHeight = '400px'
+
+                // Ensure the SVG preserves aspect ratio
+                svgElement.setAttribute('preserveAspectRatio', 'xMidYMid meet')
               }
               
               // Replace pre with container
