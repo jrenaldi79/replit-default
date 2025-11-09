@@ -11,7 +11,7 @@ BMad separates high-level planning from the development cycle. Planning is done 
 Before development begins, BMad follows a structured planning workflow performed in Chatwise for efficiency using models like Gemini Pro 2.5, Opus 4.1, or Sonnet 4.5. This phase concludes when the PRD and Architecture documents are finalized.
 
 ```mermaid
-graph TD
+flowchart TD
     subgraph "Phase 1: Planning in Chatwise"
         A["Start: Project Idea"] --> B{"Optional: Analyst Research"}
         B -->|Yes| C["Analyst: Brainstorming (Optional)"]
@@ -81,7 +81,7 @@ graph TD
 Once you are in Replit, the first step is to shard the planning documents. After that, the development cycle begins.
 
 ```mermaid
-graph TD
+flowchart TD
     subgraph "Phase 2: Setup and Development in Replit IDE"
         O["PO: Shard Documents (PRD & Architecture)"] --> P["Ready for SM/Dev Cycle"]
         P --> A["Development Phase Start"]
