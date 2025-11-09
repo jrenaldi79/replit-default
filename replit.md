@@ -10,6 +10,19 @@ This project is a Next.js 16 starter template for Northwestern MPD2 students, fe
 
 ## Recent Changes
 
+### November 9, 2024 - Fixed Next.js Cross-Origin Warnings in Replit
+-   **Issue**: Next.js 16 was showing cross-origin request warnings in the console: `⚠ Blocked cross-origin request from *.replit.dev to /_next/* resource`
+-   **Root Cause**: 
+    -   Replit uses multi-level subdomains for dev environments (e.g., `449b87cb-852c-4730-b5b5-959d5fe9d7c1-00-3ofkpagc0yzlb.worf.replit.dev`)
+    -   Next.js `allowedDevOrigins` doesn't support multi-level wildcard patterns like `*.*.replit.dev`
+    -   Only single-level wildcards work (e.g., `*.replit.dev` matches `worf.replit.dev` but NOT `something.worf.replit.dev`)
+-   **Fix**: 
+    -   Dynamically inject the exact Replit domain from `REPLIT_DOMAINS` environment variable
+    -   Updated `next.config.js` to build `allowedDevOrigins` array at runtime
+    -   Added localhost and 127.0.0.1 for local development
+-   **Result**: Zero cross-origin warnings, proper HMR (Hot Module Reload) connection, clean console logs.
+-   **Configuration**: See `next.config.js` for the dynamic domain injection pattern.
+
 ### November 9, 2024 - Linting & Type-Checking Setup
 -   **Added**: Complete ESLint 9 and TypeScript type-checking configuration for Next.js 16.
 -   **Configuration**:
